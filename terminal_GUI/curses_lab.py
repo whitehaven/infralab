@@ -1,29 +1,30 @@
 import curses
 
+from cryOSHardware import cryOSHardwareSet
+
+offset_down = 1
+offset_right = 3
+
 stdscr = curses.initscr()
 curses.noecho()
 curses.cbreak()
 stdscr.keypad(True)
 
-diagram = ('  ||     ||  ',
-           '  ||     ||  ',
-           '  ||     ||  ',
-           '  =========  ',
-           ' +---------+ ',
-           ' +---------+ ',
-           '  | | | | |  ',
-           '    | | |    ',
-           '    | | |    ',
-           '      |      ',
-           '      |      '
-           )
+test_hardware = cryOSHardwareSet()
 
-# TODO:  add temperature sensors that have random positions
+test_hardware.add_temp_sensor('hot side', diagram_location=5)
+test_hardware.add_temp_sensor('cold side', diagram_location=4)
 
-for line_number, line_contents in enumerate(diagram):
-    stdscr.addstr(line_number, 2, line_contents)
+choice = None
+while choice != 'q':
+    for line_number, line_contents in enumerate(test_hardware.diagram):
+        stdscr.addstr(line_number + offset_down, offset_right, line_contents)
 
-stdscr.getkey()
+    for sensor in test_hardware.temp_sensors:
+        stdscr.addstr(sensor.diagram_location + offset_down, offset_right + len(test_hardware.diagram[0]),
+                      str(sensor.description) + ": " + str(float(sensor.temp)))
+
+    choice = stdscr.getkey()
 
 curses.nocbreak()
 stdscr.keypad(False)
